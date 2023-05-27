@@ -1,0 +1,1 @@
+module.exports.CLIENT_REQUEST_DOMAIN = process.env.CLIENT_REQUEST_DOMAIN;
