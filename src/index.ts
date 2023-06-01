@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const { db } = require("./db/index.ts");
 const { CLIENT_REQUEST_DOMAIN } = require("./constants/index");
+const { PORT } = require("./constants/index");
+const { auth, googleProvider } = require("./firebase/index");
+const { createUserWithEmailAndPassword } = require("firebase/auth");
 const app = express();
 
 app.use(express.json());
@@ -93,7 +96,24 @@ app.get(
   }
 );
 
-const PORT = process.env.PORT || 3001;
+app.post(
+  "/signUpConfirmation",
+  (req: { body: { email: string; password: string } }, res: any) => {
+    try {
+      console.log(req.body);
+      const email: string = req.body.email;
+      const password: string = req.body.password;
+      createUserWithEmailAndPassword(auth, email, password).then(
+        // TODO: any型を修正
+        (result: any) => {
+          console.log(result);
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);
