@@ -2,6 +2,12 @@ const express = require("express");
 const cors = require("cors");
 const { db } = require("./db/index.ts");
 const { CLIENT_REQUEST_DOMAIN } = require("./constants/index");
+const {
+  PORT,
+  USER_STATE,
+  MAIL_VERIFIED_STATE,
+  DATE,
+} = require("./constants/index");
 const app = express();
 
 app.use(express.json());
@@ -93,7 +99,94 @@ app.get(
   }
 );
 
-const PORT = process.env.PORT || 3001;
+app.post("/email-signUp", (req: any, res: any) => {
+  try {
+    let providerId = req.body.data.providerId;
+    const email = req.body.data.email;
+    let emailVerified = req.body.data.emailVerified;
+    const userId = req.body.data.userId;
+
+    if (providerId === null) {
+      providerId = "email";
+    }
+    if (emailVerified === false) {
+      emailVerified = MAIL_VERIFIED_STATE.not_email_verified;
+    }
+
+    const table: string = "users";
+
+    const columns: string[] = [
+      "provider",
+      "mail_address",
+      "mail_verified_state",
+      "uuid",
+      "user_state",
+      "created_at",
+      "updated_at",
+    ];
+
+    const numOfColumns: string[] = ["?", "?", "?", "?", "?", "?", "?"];
+
+    const sql = `INSERT INTO ${table} (${columns}) VALUE (${numOfColumns})`;
+    db.query(sql, [
+      providerId,
+      email,
+      emailVerified,
+      userId,
+      USER_STATE.user_subscribed,
+      DATE.created_at,
+      DATE.updated_at,
+    ]);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+// TODO: any型を修正
+app.post("/google-signUp", (req: any, res: any) => {
+  try {
+    let providerId = req.body.data.providerId;
+    const email = req.body.data.email;
+    let emailVerified = req.body.data.emailVerified;
+    const userId = req.body.data.userId;
+
+    if (providerId === "google.com") {
+      providerId = "google";
+    }
+    if (emailVerified === false) {
+      emailVerified = MAIL_VERIFIED_STATE.not_email_verified;
+    } else {
+      emailVerified = MAIL_VERIFIED_STATE.ok_email_verified;
+    }
+
+    const table: string = "users";
+
+    const columns: string[] = [
+      "provider",
+      "mail_address",
+      "mail_verified_state",
+      "uuid",
+      "user_state",
+      "created_at",
+      "updated_at",
+    ];
+
+    const numOfColumns: string[] = ["?", "?", "?", "?", "?", "?", "?"];
+
+    const sql = `INSERT INTO ${table} (${columns}) VALUE (${numOfColumns})`;
+    db.query(sql, [
+      providerId,
+      email,
+      emailVerified,
+      userId,
+      USER_STATE.user_subscribed,
+      DATE.created_at,
+      DATE.updated_at,
+    ]);
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);
