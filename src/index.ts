@@ -143,8 +143,46 @@ app.post("/email-signUp", (req: any, res: any) => {
 });
 
 // TODO: any型を修正
-app.get("/google-signUp", (req: any, res: any) => {
+app.post("/google-signUp", (req: any, res: any) => {
   try {
+    let providerId = req.body.data.providerId;
+    const email = req.body.data.email;
+    let emailVerified = req.body.data.emailVerified;
+    const userId = req.body.data.userId;
+
+    if (providerId === "google.com") {
+      providerId = "google";
+    }
+    if (emailVerified === false) {
+      emailVerified = MAIL_VERIFIED_STATE.not_email_verified;
+    } else {
+      emailVerified = MAIL_VERIFIED_STATE.ok_email_verified;
+    }
+
+    const table: string = "users";
+
+    const columns: string[] = [
+      "provider",
+      "mail_address",
+      "mail_verified_state",
+      "uuid",
+      "user_state",
+      "created_at",
+      "updated_at",
+    ];
+
+    const numOfColumns: string[] = ["?", "?", "?", "?", "?", "?", "?"];
+
+    const sql = `INSERT INTO ${table} (${columns}) VALUE (${numOfColumns})`;
+    db.query(sql, [
+      providerId,
+      email,
+      emailVerified,
+      userId,
+      USER_STATE.user_subscribed,
+      DATE.created_at,
+      DATE.updated_at,
+    ]);
   } catch (error) {
     console.log(error);
   }
