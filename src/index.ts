@@ -45,7 +45,7 @@ app.get(
 
       const table: string = "items_info";
 
-      const sql = `SELECT ${columns} FROM ${table}`;
+      const sql: string = `SELECT ${columns} FROM ${table}`;
 
       db.query(sql, (error: string, result: string | number) => {
         if (error) {
@@ -84,7 +84,7 @@ app.get(
 
       const joinTable: string = " instagram_items_info";
 
-      const sql = `SELECT ${columns} FROM ${table} INNER JOIN ${joinTable} ON ${table}.item_id = ${joinTable}.item_id WHERE ${joinTable}.item_id = ?`;
+      const sql: string = `SELECT ${columns} FROM ${table} INNER JOIN ${joinTable} ON ${table}.item_id = ${joinTable}.item_id WHERE ${joinTable}.item_id = ?`;
 
       db.query(sql, [id], (error: string, result: string | number) => {
         if (error) {
@@ -99,90 +99,175 @@ app.get(
   }
 );
 
-app.post("/email-signUp", (req: any, res: any) => {
+app.post("/user-check", (req: any, res: any) => {
   try {
-    let providerId = req.body.data.providerId;
-    const email = req.body.data.email;
-    let emailVerified = req.body.data.emailVerified;
-    const userId = req.body.data.userId;
-
-    if (providerId === null) {
-      providerId = "email";
-    }
-    if (emailVerified === false) {
-      emailVerified = MAIL_VERIFIED_STATE.not_email_verified;
-    }
+    const userId = req.body.data;
+    console.log(userId);
 
     const table: string = "users";
 
-    const columns: string[] = [
-      "provider",
-      "mail_address",
-      "mail_verified_state",
-      "uuid",
-      "user_state",
-      "created_at",
-      "updated_at",
-    ];
+    const columns: string = "uuid";
 
-    const numOfColumns: string[] = ["?", "?", "?", "?", "?", "?", "?"];
+    const sql: string = `SELECT ${columns} FROM ${table} WHERE ${columns} = ?`;
+    db.query(sql, [userId], (error: any, result: any) => {
+      if (error) {
+        console.log(error);
+      } else {
+        res.status(200).send({ success: result });
+      }
+    });
+  } catch (error: any) {
+    console.log(error);
+  }
+});
 
-    const sql = `INSERT INTO ${table} (${columns}) VALUE (${numOfColumns})`;
-    db.query(sql, [
-      providerId,
-      email,
-      emailVerified,
-      userId,
-      USER_STATE.user_subscribed,
-      DATE.created_at,
-      DATE.updated_at,
-    ]);
+app.post(
+  "/email-signUp",
+  (
+    req: {
+      body: {
+        data: {
+          providerId: string | null;
+          email: string;
+          emailVerified: boolean;
+          userId: string;
+        };
+      };
+    },
+    res: any
+  ) => {
+    try {
+      let providerId = req.body.data.providerId;
+      const email = req.body.data.email;
+      let emailVerified = req.body.data.emailVerified;
+      const userId = req.body.data.userId;
+
+      if (providerId === null) {
+        providerId = "email";
+      }
+      if (emailVerified === false) {
+        emailVerified = MAIL_VERIFIED_STATE.not_email_verified;
+      }
+
+      const table: string = "users";
+
+      const columns: string[] = [
+        "provider",
+        "mail_address",
+        "mail_verified_state",
+        "uuid",
+        "user_state",
+        "created_at",
+        "updated_at",
+      ];
+
+      const numOfColumns: string[] = ["?", "?", "?", "?", "?", "?", "?"];
+
+      const sql: string = `INSERT INTO ${table} (${columns}) VALUE (${numOfColumns})`;
+      db.query(sql, [
+        providerId,
+        email,
+        emailVerified,
+        userId,
+        USER_STATE.user_subscribed,
+        DATE.created_at,
+        DATE.updated_at,
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+// TODO: any型を修正
+app.post(
+  "/google-signUp",
+  (
+    req: {
+      body: {
+        data: {
+          providerId: string | null;
+          email: string;
+          emailVerified: boolean;
+          userId: string;
+        };
+      };
+    },
+    res: any
+  ) => {
+    try {
+      let providerId = req.body.data.providerId;
+      const email = req.body.data.email;
+      let emailVerified = req.body.data.emailVerified;
+      const userId = req.body.data.userId;
+
+      if (providerId === "google.com") {
+        providerId = "google";
+      }
+      if (emailVerified === false) {
+        emailVerified = MAIL_VERIFIED_STATE.not_email_verified;
+      } else {
+        emailVerified = MAIL_VERIFIED_STATE.ok_email_verified;
+      }
+
+      const table: string = "users";
+
+      const columns: string[] = [
+        "provider",
+        "mail_address",
+        "mail_verified_state",
+        "uuid",
+        "user_state",
+        "created_at",
+        "updated_at",
+      ];
+
+      const numOfColumns: string[] = ["?", "?", "?", "?", "?", "?", "?"];
+
+      const sql: string = `INSERT INTO ${table} (${columns}) VALUE (${numOfColumns})`;
+      db.query(sql, [
+        providerId,
+        email,
+        emailVerified,
+        userId,
+        USER_STATE.user_subscribed,
+        DATE.created_at,
+        DATE.updated_at,
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+// TODO: any型を修正
+app.post("/email-signIn", (req: any, res: any) => {
+  try {
+    console.log(req.body);
+    const userId = req.body.data.userId;
+    let emailVerified = req.body.data.emailVerified;
+
+    if (emailVerified) {
+      emailVerified = MAIL_VERIFIED_STATE.ok_email_verified;
+      const table: string = "users";
+      const column1: string = "mail_verified_state";
+      const column2: string = "updated_at";
+      const whereColumn: string = "uuid";
+      const sql: string = `UPDATE ${table} SET ${column1} = ?, ${column2} = ? WHERE ${whereColumn} = ?`;
+
+      db.query(sql, [emailVerified, DATE.updated_at, userId]);
+      res.status(200).send({ success: "success!!" });
+    } else {
+      res.status(401).send({ error: "not_mail_verified" });
+    }
   } catch (error) {
     console.log(error);
   }
 });
 
 // TODO: any型を修正
-app.post("/google-signUp", (req: any, res: any) => {
+app.post("/google-signIn", (req: any, res: any) => {
   try {
-    let providerId = req.body.data.providerId;
-    const email = req.body.data.email;
-    let emailVerified = req.body.data.emailVerified;
-    const userId = req.body.data.userId;
-
-    if (providerId === "google.com") {
-      providerId = "google";
-    }
-    if (emailVerified === false) {
-      emailVerified = MAIL_VERIFIED_STATE.not_email_verified;
-    } else {
-      emailVerified = MAIL_VERIFIED_STATE.ok_email_verified;
-    }
-
-    const table: string = "users";
-
-    const columns: string[] = [
-      "provider",
-      "mail_address",
-      "mail_verified_state",
-      "uuid",
-      "user_state",
-      "created_at",
-      "updated_at",
-    ];
-
-    const numOfColumns: string[] = ["?", "?", "?", "?", "?", "?", "?"];
-
-    const sql = `INSERT INTO ${table} (${columns}) VALUE (${numOfColumns})`;
-    db.query(sql, [
-      providerId,
-      email,
-      emailVerified,
-      userId,
-      USER_STATE.user_subscribed,
-      DATE.created_at,
-      DATE.updated_at,
-    ]);
   } catch (error) {
     console.log(error);
   }
