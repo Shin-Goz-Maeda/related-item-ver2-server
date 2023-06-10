@@ -33,7 +33,7 @@ app.get("/", (req: Request, res: { send: (arg0: string) => void }) => {
 // メインページからのリクエストに対し、すべてのアイテム情報を返す処理
 app.get(
   "/getImgMainPage",
-  (req: Request, res: { send: (arg0: string | number) => void }) => {
+  (req: any, res: { send: (arg0: string | number) => void }) => {
     try {
       const columns: string[] = [
         "brand",
@@ -42,9 +42,7 @@ app.get(
         "item_img_url",
         "id",
       ];
-
       const table: string = "items_info";
-
       const sql: string = `SELECT ${columns} FROM ${table}`;
 
       db.query(sql, (error: string, result: string | number) => {
@@ -69,7 +67,6 @@ app.get(
   ) => {
     try {
       const id = req.params.id;
-
       const columns: string[] = [
         "item_name",
         "brand",
@@ -79,11 +76,8 @@ app.get(
         "item_img_url",
         "instagram_embed_code",
       ];
-
       const table: string = "items_info";
-
       const joinTable: string = " instagram_items_info";
-
       const sql: string = `SELECT ${columns} FROM ${table} INNER JOIN ${joinTable} ON ${table}.item_id = ${joinTable}.item_id WHERE ${joinTable}.item_id = ?`;
 
       db.query(sql, [id], (error: string, result: string | number) => {
@@ -102,13 +96,10 @@ app.get(
 app.post("/user-check", (req: any, res: any) => {
   try {
     const userId = req.body.data;
-    console.log(userId);
-
     const table: string = "users";
-
     const columns: string = "uuid";
-
     const sql: string = `SELECT ${columns} FROM ${table} WHERE ${columns} = ?`;
+
     db.query(sql, [userId], (error: any, result: any) => {
       if (error) {
         console.log(error);
@@ -137,11 +128,11 @@ app.post(
     res: any
   ) => {
     try {
+      // リクエスト情報
       let providerId = req.body.data.providerId;
       const email = req.body.data.email;
       let emailVerified = req.body.data.emailVerified;
       const userId = req.body.data.userId;
-
       if (providerId === null) {
         providerId = "email";
       }
@@ -149,8 +140,8 @@ app.post(
         emailVerified = MAIL_VERIFIED_STATE.not_email_verified;
       }
 
+      // テーブル1
       const table: string = "users";
-
       const columns: string[] = [
         "provider",
         "mail_address",
@@ -160,10 +151,9 @@ app.post(
         "created_at",
         "updated_at",
       ];
-
       const numOfColumns: string[] = ["?", "?", "?", "?", "?", "?", "?"];
-
       const sql: string = `INSERT INTO ${table} (${columns}) VALUE (${numOfColumns})`;
+
       db.query(sql, [
         providerId,
         email,
@@ -173,6 +163,45 @@ app.post(
         DATE.created_at,
         DATE.updated_at,
       ]);
+
+      // テーブル2
+      const userName = null;
+      const sex = null;
+      const birthDay = null;
+      const table2: string = "users_info";
+      const columns2: string[] = [
+        "uuid",
+        "user_name",
+        "sex",
+        "birth_date",
+        "created_at",
+        "updated_at",
+      ];
+      const numOfColumns2: string[] = ["?", "?", "?", "?", "?", "?"];
+      const sql2: string = `INSERT INTO ${table2} (${columns2}) VALUE (${numOfColumns2})`;
+
+      db.query(sql2, [
+        userId,
+        userName,
+        sex,
+        birthDay,
+        DATE.created_at,
+        DATE.updated_at,
+      ]);
+
+      // テーブル3
+      const wantToItem = null;
+      const table3: string = "users_want_to_item";
+      const columns3: string[] = [
+        "uuid",
+        "want_to_item",
+        "created_at",
+        "updated_at",
+      ];
+      const numOfColumns3: string[] = ["?", "?", "?", "?"];
+      const sql3: string = `INSERT INTO ${table3} (${columns3}) VALUE (${numOfColumns3})`;
+
+      db.query(sql3, [userId, wantToItem, DATE.created_at, DATE.updated_at]);
     } catch (error) {
       console.log(error);
     }
@@ -209,9 +238,8 @@ app.post(
       } else {
         emailVerified = MAIL_VERIFIED_STATE.ok_email_verified;
       }
-
+      // テーブル1
       const table: string = "users";
-
       const columns: string[] = [
         "provider",
         "mail_address",
@@ -221,10 +249,9 @@ app.post(
         "created_at",
         "updated_at",
       ];
-
       const numOfColumns: string[] = ["?", "?", "?", "?", "?", "?", "?"];
-
       const sql: string = `INSERT INTO ${table} (${columns}) VALUE (${numOfColumns})`;
+
       db.query(sql, [
         providerId,
         email,
@@ -234,6 +261,45 @@ app.post(
         DATE.created_at,
         DATE.updated_at,
       ]);
+
+      // テーブル2
+      const userName = null;
+      const sex = null;
+      const birthDay = null;
+      const table2: string = "users_info";
+      const columns2: string[] = [
+        "uuid",
+        "user_name",
+        "sex",
+        "birth_date",
+        "created_at",
+        "updated_at",
+      ];
+      const numOfColumns2: string[] = ["?", "?", "?", "?", "?", "?"];
+      const sql2: string = `INSERT INTO ${table2} (${columns2}) VALUE (${numOfColumns2})`;
+
+      db.query(sql2, [
+        userId,
+        userName,
+        sex,
+        birthDay,
+        DATE.created_at,
+        DATE.updated_at,
+      ]);
+
+      // テーブル3
+      const wantToItem = null;
+      const table3: string = "users_want_to_item";
+      const columns3: string[] = [
+        "uuid",
+        "want_to_item",
+        "created_at",
+        "updated_at",
+      ];
+      const numOfColumns3: string[] = ["?", "?", "?", "?"];
+      const sql3: string = `INSERT INTO ${table3} (${columns3}) VALUE (${numOfColumns3})`;
+
+      db.query(sql3, [userId, wantToItem, DATE.created_at, DATE.updated_at]);
     } catch (error) {
       console.log(error);
     }
@@ -266,8 +332,9 @@ app.post("/email-signIn", (req: any, res: any) => {
 });
 
 // TODO: any型を修正
-app.post("/google-signIn", (req: any, res: any) => {
+app.post("/account-info-setUp", (req: any, res: any) => {
   try {
+    console.log(req.body);
   } catch (error) {
     console.log(error);
   }
