@@ -97,8 +97,8 @@ app.post("/user-check", (req: any, res: any) => {
   try {
     const userId = req.body.data;
     const table: string = "users";
-    const columns: string = "uuid";
-    const sql: string = `SELECT ${columns} FROM ${table} WHERE ${columns} = ?`;
+    const column: string = "uuid";
+    const sql: string = `SELECT ${column} FROM ${table} WHERE ${column} = ?`;
 
     db.query(sql, [userId], (error: any, result: any) => {
       if (error) {
@@ -334,7 +334,30 @@ app.post("/email-signIn", (req: any, res: any) => {
 // TODO: any型を修正
 app.post("/account-info-setUp", (req: any, res: any) => {
   try {
-    console.log(req.body);
+    console.log(req.body.data);
+    const userId = req.body.data.userId;
+    const userName = req.body.data.accountData.userName;
+    const sex = req.body.data.accountData.sex;
+    const birthDay = req.body.data.accountData.birthDay;
+    const category = req.body.data.accountData.category;
+
+    // データベースの情報をアップデート
+    const table: string = "users_info";
+    const column1: string = "user_name";
+    const column2: string = "sex";
+    const column3: string = "birth_date";
+    const column4: string = "updated_at";
+    const whereColumn: string = "uuid";
+    const sql: string = `UPDATE ${table} SET ${column1} = ?, ${column2} = ?, ${column3} = ?, ${column4} = ? WHERE ${whereColumn} = ?`;
+
+    db.query(sql, [userName, sex, birthDay, DATE.updated_at, userId]);
+
+    const table2: string = "users_want_to_item";
+    const column5: string = "want_to_item";
+    const column6: string = "updated_at";
+    const sql2: string = `UPDATE ${table2} SET ${column5} = ?, ${column6} = ? WHERE ${whereColumn} = ?`;
+
+    db.query(sql2, [category, DATE.updated_at, userId]);
   } catch (error) {
     console.log(error);
   }
