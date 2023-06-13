@@ -363,6 +363,33 @@ app.post("/account-info-setUp", (req: any, res: any) => {
   }
 });
 
+app.post("/account-info", (req: any, res: any) => {
+  try {
+    console.log(req.body);
+    const userId = req.body.data;
+    const columns: string[] = [
+      "user_name",
+      "sex",
+      "birth_date",
+      "want_to_item",
+    ];
+    const table: string = "users_info";
+    const joinTable: string = "users_want_to_item";
+    const whereColumn: string = "uuid";
+    const sql: string = `SELECT ${columns} FROM ${table} INNER JOIN ${joinTable} ON ${table}.${whereColumn} = ${joinTable}.${whereColumn} WHERE ${joinTable}.${whereColumn} = ?`;
+
+    db.query(sql, [userId], (error: string, result: string | number) => {
+      if (error) {
+        console.log(error);
+      } else {
+        res.status(200).send({ success: result });
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);
 });
