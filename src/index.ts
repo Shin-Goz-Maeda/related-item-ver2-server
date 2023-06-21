@@ -309,7 +309,6 @@ app.post(
 // TODO: any型を修正
 app.post("/email-signIn", (req: any, res: any) => {
   try {
-    console.log(req.body);
     const userId = req.body.data.userId;
     let emailVerified = req.body.data.emailVerified;
 
@@ -334,7 +333,6 @@ app.post("/email-signIn", (req: any, res: any) => {
 // TODO: any型を修正
 app.post("/account-info-setUp", (req: any, res: any) => {
   try {
-    console.log(req.body.data);
     const userId = req.body.data.userId;
     const userName = req.body.data.accountData.userName;
     const sex = req.body.data.accountData.sex;
@@ -365,7 +363,6 @@ app.post("/account-info-setUp", (req: any, res: any) => {
 
 app.post("/account-info", (req: any, res: any) => {
   try {
-    console.log(req.body);
     const userId = req.body.data;
     const columns: string[] = [
       "user_name",
@@ -389,6 +386,69 @@ app.post("/account-info", (req: any, res: any) => {
     console.log(error);
   }
 });
+
+app.post(
+  "/password-reset-before-signIn",
+  (
+    req: { body: { data: string } },
+    res: {
+      status: (arg0: number) => {
+        (): any;
+        new (): any;
+        send: { (arg0: { success: any }): void; new (): any };
+      };
+    }
+  ) => {
+    try {
+      const email: string = req.body.data;
+      const columns: string[] = ["mail_address", "provider"];
+      const table: string = "users";
+      const whereColumn: string = "mail_address";
+      const sql = `SELECT ${columns} FROM ${table} WHERE ${whereColumn}`;
+      db.query(sql, [email], (error: string, result: string) => {
+        if (error) {
+          console.log(error);
+        } else {
+          res.status(200).send({ success: result });
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+app.post(
+  "/password-reset-after-signIn",
+  (
+    req: { body: { data: string } },
+    res: {
+      status: (arg0: number) => {
+        (): any;
+        new (): any;
+        send: { (arg0: { success: any }): void; new (): any };
+      };
+    }
+  ) => {
+    try {
+      const userId: string = req.body.data;
+      const columns: string[] = ["mail_address", "provider"];
+      const table: string = "users";
+      const whereColumn: string = "uuid";
+      const sql = `SELECT ${columns} FROM ${table} WHERE ${whereColumn} = ?`;
+
+      db.query(sql, [userId], (error: string, result: string) => {
+        if (error) {
+          console.log(error);
+        } else {
+          res.status(200).send({ success: result });
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);
