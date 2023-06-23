@@ -450,6 +450,25 @@ app.post(
   }
 );
 
+// TODO: any型を修正
+app.post("/account-withDrawal", (req: any, res: any) => {
+  try {
+    console.log(req.body.data);
+
+    // データベースの情報をアップデート
+    const userId = req.body.data;
+    const table: string = "users";
+    const column1: string = "user_state";
+    const column2: string = "updated_at";
+    const whereColumn: string = "uuid";
+    const sql: string = `UPDATE ${table} SET ${column1} = ?, ${column2} = ? WHERE ${whereColumn} = ?`;
+
+    db.query(sql, [USER_STATE.user_unSubscribed, DATE.updated_at, userId]);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);
 });
